@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDO – Marghot Hotel Spa</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --verde: #4a5240;
+    --verde-claro: #6b7a5e;
+    --creme: #f5f2eb;
+    --dourado: #b8a96a;
+    --cinza: #888;
+    --branco: #ffffff;
+    --borda: #d5cfc0;
+    --texto: #2c2c2c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: #e8e4db;
+    color: var(--texto);
+    min-height: 100vh;
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: var(--verde);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .toolbar-title {
+    color: var(--creme);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex: 1;
+    font-family: 'Georgia', serif;
+  }
+  .btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Georgia', serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-salvar { background: var(--dourado); color: #fff; }
+  .btn-novo { background: #6b7a5e; color: #fff; }
+  .btn-pdf { background: var(--creme); color: var(--verde); }
+
+  /* ── FORMULÁRIO ── */
+  .container {
+    max-width: 900px;
+    margin: 32px auto;
+    padding: 0 16px 60px;
+  }
+
+  /* ── CABEÇALHO ── */
+  .header-card {
+    background: var(--verde);
+    border-radius: 6px 6px 0 0;
+    padding: 28px 36px 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .header-card img.logo-main {
+    height: 70px;
+    object-fit: contain;
+  }
+  .header-card img.logo-sec {
+    height: 64px;
+    object-fit: contain;
+    margin-left: auto;
+    mix-blend-mode: screen;
+    opacity: 1;
+    filter: brightness(1.15) contrast(1.1);
+  }
+  .header-info {
+    color: var(--creme);
+    flex: 1;
+  }
+  .header-info h1 {
+    font-size: 22px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dourado);
+  }
+  .header-info p {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+    opacity: 0.8;
+    text-transform: uppercase;
+  }
+
+  .rdo-numero {
+    background: var(--dourado);
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 90px;
+    font-family: 'Georgia', serif;
+  }
+  .rdo-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dourado);
+    opacity: 0.8;
+  }
+
+  /* ── SEÇÕES ── */
+  .card {
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    padding: 24px 28px;
+    margin-top: 2px;
+  }
+  .card:last-of-type { border-radius: 0 0 6px 6px; }
+
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--verde);
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--dourado);
+    margin-bottom: 18px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--verde);
+    margin-bottom: 5px;
+    font-family: 'Georgia', serif;
+  }
+
+  input[type="text"], input[type="date"], input[type="number"], textarea, select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--borda);
+    border-radius: 3px;
+    font-family: 'Georgia', serif;
+    font-size: 13px;
+    color: var(--texto);
+    background: var(--creme);
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--verde);
+    background: #fff;
+  }
+  textarea { resize: vertical; }
+
+  /* ── MÃO DE OBRA ── */
+  .mob-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .mob-table th {
+    background: var(--verde);
+    color: var(--creme);
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: 'Georgia', serif;
+    font-weight: normal;
+  }
+  .mob-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--borda);
+    vertical-align: middle;
+  }
+  .mob-table tr:nth-child(even) td { background: #faf8f3; }
+  .mob-table input[type="number"] {
+    width: 70px;
+    padding: 5px 8px;
+    text-align: center;
+  }
+  .total-row td {
+    background: var(--creme) !important;
+    font-weight: bold;
+    color: var(--verde);
+    border-top: 2px solid var(--dourado);
+  }
+
+  /* ── CLIMA ── */
+  .clima-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .clima-btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .clima-btn {
+    padding: 7px 14px;
+    border: 1.5px solid var(--borda);
+    border-radius: 20px;
+    background: var(--creme);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Georgia', serif;
+    transition: all 0.2s;
+  }
+  .clima-btn.active {
+    background: var(--verde);
+    color: var(--creme);
+    border-color: var(--verde);
+  }
+
+  /* ── FOTOS ── */
+  .foto-upload-area {
+    border: 2px dashed var(--dourado);
+    border-radius: 6px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    background: #faf8f3;
+    transition: background 0.2s;
+    margin-bottom: 20px;
+  }
+  .foto-upload-area:hover { background: #f0ebe0; }
+  .foto-upload-area p { color: var(--verde); font-size: 13px; margin-top: 8px; }
+  .foto-upload-area .icon { font-size: 36px; }
+  #fotos-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .foto-item {
+    position: relative;
+    border: 1px solid var(--borda);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .foto-item img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+  }
+  .foto-item .foto-legenda {
+    padding: 6px 8px;
+    background: #fff;
+  }
+  .foto-item .foto-legenda input {
+    width: 100%;
+    font-size: 11px;
+    padding: 4px 6px;
+    border: 1px solid var(--borda);
+    border-radius: 2px;
+    background: var(--creme);
+  }
+  .foto-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(200,60,60,0.85);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 22px;
+    text-align: center;
+  }
+
+  /* ── ASSINATURAS ── */
+  .assinatura-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 8px; }
+  .assinatura-box {
+    text-align: center;
+    border-top: 1.5px solid var(--verde);
+    padding-top: 10px;
+    font-size: 12px;
+    color: var(--verde);
+    letter-spacing: 1px;
+  }
+  canvas.sig-canvas {
+    border: 1px solid var(--borda);
+    border-radius: 3px;
+    width: 100%;
+    height: 80px;
+    cursor: crosshair;
+    background: #faf8f3;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .sig-clear {
+    font-size: 10px;
+    color: #999;
+    cursor: pointer;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    font-family: 'Georgia', serif;
+  }
+
+  /* ── RODAPÉ ── */
+  .rodape-card {
+    background: var(--verde);
+    border-radius: 0 0 6px 6px;
+    padding: 16px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .rodape-card p {
+    color: var(--creme);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+  .rodape-card .pg { color: var(--dourado); font-size: 13px; }
+
+  /* ── PRINT / PDF ── */
+  @media print {
+    .toolbar { display: none !important; }
+    body { background: white; }
+    .container { margin: 0; padding: 0; max-width: 100%; }
+    .btn { display: none; }
+    .foto-upload-area { display: none; }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--verde); color: var(--creme);
+    padding: 12px 22px; border-radius: 4px;
+    font-size: 13px; letter-spacing: 1px;
+    opacity: 0; transition: opacity 0.3s;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <span class="toolbar-title">RDO — Marghot Hotel Spa</span>
+  <button class="btn btn-salvar" onclick="salvarRDO()">💾 Salvar</button>
+  <button class="btn btn-novo" onclick="novoRDO()">🔄 Novo Dia</button>
+  <button class="btn btn-pdf" onclick="gerarPDF()">📄 Gerar PDF</button>
+</div>
+
+<div class="container" id="rdo-form">
+
+  <!-- CABEÇALHO -->
+  <div class="header-card">
+    <img class="logo-main" src="data:image/png;base64,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" alt="Marghot Hotel Spa">
+    <div class="header-info">
+      <div class="rdo-label">Relatório Diário de Obra</div>
+      <h1>Hotel Spa Marghot</h1>
+      <p>Porto de Pedras — AL</p>
+    </div>
+    <div style="text-align:right;">
+      <div class="rdo-label" style="color:var(--dourado);opacity:0.7;">RDO Nº</div>
+      <div class="rdo-numero" id="rdo-num-display">001</div>
+    </div>
+    <img class="logo-sec" src="data:image/png;base64,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" alt="Logo construtora">
+  </div>
+
+  <!-- IDENTIFICAÇÃO -->
+  <div class="card">
+    <div class="section-title">01 · Identificação</div>
+    <div class="grid-4">
+      <div>
+        <label>Data</label>
+        <input type="date" id="data" />
+      </div>
+      <div>
+        <label>RDO Nº</label>
+        <input type="number" id="rdo-num" value="1" min="1" onchange="document.getElementById('rdo-num-display').textContent=String(this.value).padStart(3,'0')" />
+      </div>
+      <div>
+        <label>Eng. Responsável</label>
+        <input type="text" id="engenheiro" value="André" />
+      </div>
+      <div>
+        <label>Encarregado</label>
+        <input type="text" id="encarregado" value="Marcelo" />
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIMA -->
+  <div class="card">
+    <div class="section-title">02 · Condições Climáticas</div>
+    <div class="clima-grid">
+      <div>
+        <label>Período da Manhã</label>
+        <div class="clima-btn-group" id="clima-manha">
+          <button class="clima-btn" onclick="toggleClima(this)">☀️ Ensolarado</button>
+          <button class="clima-btn" onclick="toggleClima(this)">⛅ Nublado</button>
+          <button class="clima-btn" onclick="toggleClima(this)">🌧️ Chuvoso</button>
+        </div>
+      </div>
+      <div>
+        <label>Período da Tarde</label>
+        <div class="clima-btn-group" id="clima-tarde">
+          <button class="clima-btn" onclick="toggleClima(this)">☀️ Ensolarado</button>
+          <button class="clima-btn" onclick="toggleClima(this)">⛅ Nublado</button>
+          <button class="clima-btn" onclick="toggleClima(this)">🌧️ Chuvoso</button>
+        </div>
+      </div>
+      <div>
+        <label>Pluviometria (mm)</label>
+        <input type="number" id="pluviometria" placeholder="0.0" step="0.1" min="0" />
+      </div>
+      <div>
+        <label>Temp. Aprox. (°C)</label>
+        <input type="number" id="temperatura" placeholder="ex: 28" />
+      </div>
+    </div>
+    <div>
+      <label>Impacto Climático na Obra</label>
+      <textarea id="impacto-clima" rows="2" placeholder="Descreva se houve interrupção de serviços, alagamentos, etc."></textarea>
+    </div>
+  </div>
+
+  <!-- MÃO DE OBRA -->
+  <div class="card">
+    <div class="section-title">03 · Efetivo de Mão de Obra</div>
+    <table class="mob-table">
+      <thead>
+        <tr>
+          <th>Função</th>
+          <th style="width:90px;text-align:center;">Previsto</th>
+          <th style="width:90px;text-align:center;">Presente</th>
+          <th style="width:90px;text-align:center;">Ausente</th>
+        </tr>
+      </thead>
+      <tbody id="mob-tbody">
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td><strong>TOTAL</strong></td>
+          <td style="text-align:center;"><strong id="tot-prev">0</strong></td>
+          <td style="text-align:center;"><strong id="tot-pres">0</strong></td>
+          <td style="text-align:center;"><strong id="tot-aus">0</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- EQUIPAMENTOS -->
+  <div class="card">
+    <div class="section-title">04 · Equipamentos em Uso</div>
+    <div id="equip-lines">
+    </div>
+    <button onclick="addEquip()" style="margin-top:8px;font-size:11px;color:var(--verde);background:none;border:none;cursor:pointer;letter-spacing:1px;font-family:Georgia,serif;">+ Adicionar equipamento</button>
+  </div>
+
+  <!-- ATIVIDADES -->
+  <div class="card">
+    <div class="section-title">05 · Atividades Executadas</div>
+    <div id="ativ-lines"></div>
+    <button onclick="addAtiv()" style="margin-top:8px;font-size:11px;color:var(--verde);background:none;border:none;cursor:pointer;letter-spacing:1px;font-family:Georgia,serif;">+ Adicionar atividade</button>
+  </div>
+
+  <!-- OCORRÊNCIAS / NÃO CONFORMIDADES -->
+  <div class="card">
+    <div class="section-title">06 · Ocorrências e Não Conformidades</div>
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div>
+        <label>Tipo</label>
+        <select id="ocorrencia-tipo">
+          <option value="">— Selecione —</option>
+          <option>Não Conformidade Técnica</option>
+          <option>Acidente / Incidente</option>
+          <option>Paralisação de Serviço</option>
+          <option>Problema de Material</option>
+          <option>Atraso de Fornecedor</option>
+          <option>Interferência de Terceiros</option>
+          <option>Outros</option>
+        </select>
+      </div>
+      <div>
+        <label>Grau de Impacto</label>
+        <select id="ocorrencia-impacto">
+          <option value="">— Selecione —</option>
+          <option>🟢 Baixo</option>
+          <option>🟡 Médio</option>
+          <option>🔴 Alto</option>
+          <option>⚫ Crítico</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label>Descrição da Ocorrência</label>
+      <textarea id="ocorrencia-desc" rows="4" placeholder="Descreva a ocorrência, local, responsável e ação corretiva tomada..."></textarea>
+    </div>
+  </div>
+
+  <!-- REGISTRO FOTOGRÁFICO -->
+  <div class="card">
+    <div class="section-title">07 · Registro Fotográfico</div>
+    <div class="foto-upload-area" onclick="document.getElementById('foto-input').click()">
+      <div class="icon">📷</div>
+      <p>Clique para adicionar fotos (máx. 20)</p>
+      <p style="font-size:11px;color:#999;margin-top:4px;">JPG, PNG — as fotos são salvas apenas no PDF final</p>
+    </div>
+    <input type="file" id="foto-input" accept="image/*" multiple style="display:none" onchange="adicionarFotos(event)" />
+    <div id="fotos-preview"></div>
+  </div>
+
+  <!-- ASSINATURAS -->
+  <div class="card">
+    <div class="section-title">08 · Assinaturas</div>
+    <div class="assinatura-grid">
+      <div>
+        <label>Engenheiro Responsável</label>
+        <canvas class="sig-canvas" id="sig1" width="400" height="80"></canvas>
+        <div style="text-align:center;">
+          <button class="sig-clear" onclick="clearSig('sig1')">Limpar assinatura</button>
+        </div>
+        <div class="assinatura-box" style="margin-top:10px;">
+          <span id="nome-eng-rodape">André</span><br>
+          <span style="font-size:10px;opacity:0.6;">Engenheiro Responsável</span>
+        </div>
+      </div>
+      <div>
+        <label>Encarregado de Campo</label>
+        <canvas class="sig-canvas" id="sig2" width="400" height="80"></canvas>
+        <div style="text-align:center;">
+          <button class="sig-clear" onclick="clearSig('sig2')">Limpar assinatura</button>
+        </div>
+        <div class="assinatura-box" style="margin-top:10px;">
+          <span id="nome-enc-rodape">Marcelo</span><br>
+          <span style="font-size:10px;opacity:0.6;">Encarregado de Campo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RODAPÉ -->
+  <div class="rodape-card">
+    <p>Hotel Spa Marghot · Porto de Pedras</p>
+    <p class="pg" id="data-rodape"></p>
+    <p>Documento Confidencial</p>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DADOS MÃO DE OBRA ──
+const funcoes = [
+  'Pedreiro','Servente','Eletricista','Bombeiro Hidráulico','Engenheiro',
+  'Auxiliar de Engenharia','Compras','Téc. Segurança','Téc. Qualidade',
+  'Arquiteto','Encarregado','Mestre de Obras','Montador','Carpinteiro',
+  'Armador','Outros'
+];
+
+function buildMOB() {
+  const tbody = document.getElementById('mob-tbody');
+  funcoes.forEach((f, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${f}</td>
+      <td><input type="number" min="0" value="0" class="mob-prev" data-idx="${i}" onchange="calcTotais()" /></td>
+      <td><input type="number" min="0" value="0" class="mob-pres" data-idx="${i}" onchange="calcTotais()" /></td>
+      <td><input type="number" min="0" value="0" class="mob-aus" data-idx="${i}" onchange="calcTotais()" /></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function calcTotais() {
+  const sum = cls => Array.from(document.querySelectorAll('.' + cls)).reduce((a,b) => a + (parseInt(b.value)||0), 0);
+  document.getElementById('tot-prev').textContent = sum('mob-prev');
+  document.getElementById('tot-pres').textContent = sum('mob-pres');
+  document.getElementById('tot-aus').textContent = sum('mob-aus');
+}
+
+// ── ATIVIDADES ──
+let ativCount = 0;
+function addAtiv(texto) {
+  ativCount++;
+  const idx = ativCount;
+  const div = document.createElement('div');
+  div.className = 'ativ-row';
+  div.style.cssText = 'display:grid;grid-template-columns:28px 1fr auto;gap:10px;margin-bottom:10px;align-items:center;';
+  div.innerHTML = `
+    <span style="font-size:12px;color:var(--dourado);font-weight:bold;font-family:Georgia,serif;text-align:center;">${String(idx).padStart(2,'0')}</span>
+    <input type="text" class="ativ-texto" placeholder="Descreva a atividade executada..." value="${texto||''}" />
+    <button onclick="this.parentElement.remove();renumAtiv();" style="background:#c0392b;color:#fff;border:none;border-radius:3px;padding:6px 10px;cursor:pointer;">✕</button>
+  `;
+  document.getElementById('ativ-lines').appendChild(div);
+}
+
+function renumAtiv() {
+  document.querySelectorAll('#ativ-lines .ativ-row').forEach((row, i) => {
+    const num = row.querySelector('span');
+    if (num) num.textContent = String(i+1).padStart(2,'0');
+  });
+  ativCount = document.querySelectorAll('#ativ-lines .ativ-row').length;
+}
+
+// ── EQUIPAMENTOS ──
+let equipCount = 0;
+function addEquip() {
+  if (equipCount >= 5) return showToast('Máximo de 5 equipamentos atingido.');
+  equipCount++;
+  const div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:10px;margin-bottom:10px;align-items:center;';
+  div.innerHTML = `
+    <input type="text" placeholder="Equipamento" class="equip-nome" />
+    <input type="number" placeholder="Qtd" min="1" value="1" class="equip-qtd" />
+    <input type="text" placeholder="Observação" class="equip-obs" />
+    <button onclick="this.parentElement.remove();equipCount--;" style="background:#c0392b;color:#fff;border:none;border-radius:3px;padding:6px 10px;cursor:pointer;">✕</button>
+  `;
+  document.getElementById('equip-lines').appendChild(div);
+}
+
+// ── CLIMA ──
+function toggleClima(btn) {
+  const group = btn.parentElement;
+  group.querySelectorAll('.clima-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── FOTOS ──
+let fotosData = [];
+function adicionarFotos(event) {
+  const files = Array.from(event.target.files);
+  if (fotosData.length + files.length > 20) {
+    showToast('Máximo de 20 fotos por RDO.');
+    return;
+  }
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      fotosData.push({ src: e.target.result, legenda: '' });
+      renderFotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function renderFotos() {
+  const preview = document.getElementById('fotos-preview');
+  preview.innerHTML = '';
+  fotosData.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'foto-item';
+    div.innerHTML = `
+      <button class="foto-remove" onclick="removerFoto(${i})">✕</button>
+      <img src="${f.src}" alt="Foto ${i+1}" />
+      <div class="foto-legenda">
+        <input type="text" placeholder="Legenda da foto..." value="${f.legenda}"
+          onchange="fotosData[${i}].legenda=this.value" />
+      </div>
+    `;
+    preview.appendChild(div);
+  });
+}
+
+function removerFoto(i) {
+  fotosData.splice(i, 1);
+  renderFotos();
+}
+
+// ── ASSINATURA CANVAS ──
+function setupCanvas(id) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+
+  canvas.addEventListener('mousedown', e => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+  canvas.addEventListener('mousemove', e => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.strokeStyle = '#2c2c2c'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.stroke();
+  });
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  // Touch
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(t.clientX - r.left, t.clientY - r.top); });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); ctx.lineTo(t.clientX - r.left, t.clientY - r.top); ctx.strokeStyle = '#2c2c2c'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.stroke(); });
+  canvas.addEventListener('touchend', () => drawing = false);
+}
+
+function clearSig(id) {
+  const canvas = document.getElementById(id);
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ── SALVAR (localStorage) ──
+function salvarRDO() {
+  const dados = coletarDados();
+  localStorage.setItem('rdo_marghot', JSON.stringify(dados));
+  showToast('RDO salvo com sucesso!');
+}
+
+function coletarDados() {
+  const mob = {};
+  funcoes.forEach((f, i) => {
+    mob[f] = {
+      prev: parseInt(document.querySelectorAll('.mob-prev')[i]?.value) || 0,
+      pres: parseInt(document.querySelectorAll('.mob-pres')[i]?.value) || 0,
+      aus:  parseInt(document.querySelectorAll('.mob-aus')[i]?.value)  || 0,
+    };
+  });
+  const equipamentos = Array.from(document.querySelectorAll('#equip-lines > div')).map(d => ({
+    nome: d.querySelector('.equip-nome')?.value || '',
+    qtd:  d.querySelector('.equip-qtd')?.value  || '',
+    obs:  d.querySelector('.equip-obs')?.value  || '',
+  }));
+  const climaManha = document.querySelector('#clima-manha .clima-btn.active')?.textContent || '';
+  const climaTarde = document.querySelector('#clima-tarde .clima-btn.active')?.textContent || '';
+  return {
+    rdoNum: document.getElementById('rdo-num').value,
+    data: document.getElementById('data').value,
+    engenheiro: document.getElementById('engenheiro').value,
+    encarregado: document.getElementById('encarregado').value,
+    climaManha, climaTarde,
+    pluviometria: document.getElementById('pluviometria').value,
+    temperatura: document.getElementById('temperatura').value,
+    impactoClima: document.getElementById('impacto-clima').value,
+    ocorrenciaTipo: document.getElementById('ocorrencia-tipo').value,
+    ocorrenciaImpacto: document.getElementById('ocorrencia-impacto').value,
+    ocorrenciaDesc: document.getElementById('ocorrencia-desc').value,
+    mob, equipamentos,
+    atividades: Array.from(document.querySelectorAll('.ativ-texto')).map(i => i.value)
+  };
+}
+
+function carregarDados(dados, incluirFotos = true) {
+  if (!dados) return;
+  document.getElementById('rdo-num').value = dados.rdoNum || 1;
+  document.getElementById('rdo-num-display').textContent = String(dados.rdoNum || 1).padStart(3, '0');
+  document.getElementById('data').value = dados.data || '';
+  document.getElementById('engenheiro').value = dados.engenheiro || '';
+  document.getElementById('encarregado').value = dados.encarregado || '';
+  document.getElementById('pluviometria').value = dados.pluviometria || '';
+  document.getElementById('temperatura').value = dados.temperatura || '';
+  document.getElementById('impacto-clima').value = dados.impactoClima || '';
+  document.getElementById('ocorrencia-tipo').value = dados.ocorrenciaTipo || '';
+  document.getElementById('ocorrencia-impacto').value = dados.ocorrenciaImpacto || '';
+  document.getElementById('ocorrencia-desc').value = dados.ocorrenciaDesc || '';
+
+  // atividades
+  document.getElementById('ativ-lines').innerHTML = '';
+  ativCount = 0;
+  if (dados.atividades && Array.isArray(dados.atividades)) {
+    dados.atividades.forEach(t => addAtiv(t));
+  }
+
+  // clima
+  if (dados.climaManha) {
+    document.querySelectorAll('#clima-manha .clima-btn').forEach(b => {
+      if (b.textContent.includes(dados.climaManha.replace(/☀️|⛅|🌧️/g,'').trim())) b.classList.add('active');
+    });
+  }
+  if (dados.climaTarde) {
+    document.querySelectorAll('#clima-tarde .clima-btn').forEach(b => {
+      if (b.textContent.includes(dados.climaTarde.replace(/☀️|⛅|🌧️/g,'').trim())) b.classList.add('active');
+    });
+  }
+
+  // mob
+  if (dados.mob) {
+    funcoes.forEach((f, i) => {
+      const prev = document.querySelectorAll('.mob-prev')[i];
+      const pres = document.querySelectorAll('.mob-pres')[i];
+      const aus  = document.querySelectorAll('.mob-aus')[i];
+      if (prev) prev.value = dados.mob[f]?.prev || 0;
+      if (pres) pres.value = dados.mob[f]?.pres || 0;
+      if (aus)  aus.value  = dados.mob[f]?.aus  || 0;
+    });
+    calcTotais();
+  }
+
+  // equipamentos
+  document.getElementById('equip-lines').innerHTML = '';
+  equipCount = 0;
+  if (dados.equipamentos) {
+    dados.equipamentos.forEach(eq => {
+      addEquip();
+      const lines = document.getElementById('equip-lines').children;
+      const last = lines[lines.length - 1];
+      last.querySelector('.equip-nome').value = eq.nome;
+      last.querySelector('.equip-qtd').value  = eq.qtd;
+      last.querySelector('.equip-obs').value  = eq.obs;
+    });
+  }
+}
+
+// ── NOVO DIA ──
+function novoRDO() {
+  if (!confirm('Iniciar novo RDO? Os dados de texto serão mantidos, a data e fotos serão limpas.')) return;
+  const dados = coletarDados();
+  const novoNum = parseInt(dados.rdoNum || 1) + 1;
+  dados.rdoNum = novoNum;
+  dados.data = '';
+  dados.pluviometria = '';
+  dados.temperatura = '';
+  dados.impactoClima = '';
+  dados.climaManha = '';
+  dados.climaTarde = '';
+  dados.ocorrenciaTipo = '';
+  dados.ocorrenciaImpacto = '';
+  dados.ocorrenciaDesc = '';
+  // mantém atividades, mob, equip, engenheiro, encarregado
+  carregarDados(dados, false);
+  fotosData = [];
+  renderFotos();
+  clearSig('sig1'); clearSig('sig2');
+  document.getElementById('data').value = '';
+  document.querySelectorAll('.clima-btn').forEach(b => b.classList.remove('active'));
+  showToast(`Novo RDO Nº ${String(novoNum).padStart(3,'0')} iniciado!`);
+  localStorage.setItem('rdo_marghot', JSON.stringify(dados));
+}
+
+// ── GERAR PDF ──
+function gerarPDF() {
+  // Esconde toolbar e upload
+  document.querySelector('.toolbar').style.display = 'none';
+  document.querySelector('.foto-upload-area').style.display = 'none';
+  document.querySelectorAll('.foto-remove').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('.sig-clear').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('button').forEach(b => b.style.display = 'none');
+
+  // Exporta canvas de assinatura como imagem
+  ['sig1', 'sig2'].forEach(id => {
+    const canvas = document.getElementById(id);
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL();
+    img.style.cssText = 'width:100%;height:80px;object-fit:contain;display:block;margin-bottom:8px;';
+    img.id = id + '_img';
+    canvas.style.display = 'none';
+    canvas.parentElement.insertBefore(img, canvas);
+  });
+
+  const rdoNum = document.getElementById('rdo-num').value;
+  const data   = document.getElementById('data').value || 'sem-data';
+  const nome   = `RDO_${String(rdoNum).padStart(3,'0')}_MarghhotHotel_${data}.pdf`;
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: nome,
+    image: { type: 'jpeg', quality: 0.92 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  html2pdf().set(opt).from(document.getElementById('rdo-form')).save().then(() => {
+    // Restaura
+    document.querySelector('.toolbar').style.display = 'flex';
+    document.querySelector('.foto-upload-area').style.display = 'block';
+    document.querySelectorAll('.foto-remove').forEach(b => b.style.display = 'block');
+    document.querySelectorAll('.sig-clear').forEach(b => b.style.display = 'inline');
+    document.querySelectorAll('button').forEach(b => b.style.display = '');
+    ['sig1', 'sig2'].forEach(id => {
+      const canvas = document.getElementById(id);
+      const img = document.getElementById(id + '_img');
+      if (img) img.remove();
+      canvas.style.display = 'block';
+    });
+    showToast('PDF gerado com sucesso!');
+  });
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── DATA RODAPÉ ──
+function atualizarDataRodape() {
+  const d = document.getElementById('data').value;
+  if (d) {
+    const [y,m,dd] = d.split('-');
+    document.getElementById('data-rodape').textContent = `${dd}/${m}/${y}`;
+  }
+  document.getElementById('nome-eng-rodape').textContent = document.getElementById('engenheiro').value;
+  document.getElementById('nome-enc-rodape').textContent = document.getElementById('encarregado').value;
+}
+document.getElementById('data').addEventListener('change', atualizarDataRodape);
+document.getElementById('engenheiro').addEventListener('input', atualizarDataRodape);
+document.getElementById('encarregado').addEventListener('input', atualizarDataRodape);
+
+// ── INIT ──
+buildMOB();
+setupCanvas('sig1');
+setupCanvas('sig2');
+
+// Data de hoje
+const hoje = new Date().toISOString().split('T')[0];
+document.getElementById('data').value = hoje;
+atualizarDataRodape();
+
+// Carregar dados salvos
+const saved = localStorage.getItem('rdo_marghot');
+if (saved) {
+  try { carregarDados(JSON.parse(saved)); } catch(e) {}
+}
+
+// Inicializar com 1 atividade e 1 equipamento
+addAtiv();
+addEquip();
+</script>
+</body>
+</html>
